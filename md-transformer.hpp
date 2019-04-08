@@ -130,36 +130,15 @@ class MDTransformer
     }
     void _process_inline_code(std::string &str)
     {
-        std::regex reg("`.+`");
-        std::sregex_iterator it(str.begin(), str.end(), reg);
-        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
-        {
-            auto code = this->_substr(it->str(), '`', '`');
-            auto html = "<code>" + code + "</code>";
-            str.replace(str.find(it->str()), it->str().length(), html);
-        }
+        this->_process_with_regex(str, "`", "code");
     }
     void _process_bold(std::string &str)
     {
-        std::regex reg("\\*{2}.+\\*{2}");
-        std::sregex_iterator it(str.begin(), str.end(), reg);
-        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
-        {
-            auto word = it->str().substr(2, it->str().length() - 4);
-            auto html = "<strong>" + word + "</strong>";
-            str.replace(str.find(it->str()), it->str().length(), html);
-        }
+        this->_process_with_regex(str, "\\*{2}", "strong", 2);
     }
     void _process_italic(std::string &str)
     {
-        std::regex reg("\\*.+\\*");
-        std::sregex_iterator it(str.begin(), str.end(), reg);
-        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
-        {
-            auto word = this->_substr(it->str(), '*', '*');
-            auto html = "<em>" + word + "</em>";
-            str.replace(str.find(it->str()), it->str().length(), html);
-        }
+        this->_process_with_regex(str, "\\*", "em", 1);
     }
     void _process_paragraph(std::string &str)
     {
@@ -181,6 +160,19 @@ class MDTransformer
         auto pos_e = str.find_last_of(end);
         auto len = pos_e - pos_s;
         return str.substr(pos_s + 1, len - 1);
+    }
+    void _process_with_regex(std::string &str, const std::string &md_tag, const std::string &html_tag, int len_tag = -1)
+    {
+        if (len_tag == -1)
+            len_tag = md_tag.length();
+        std::regex reg(md_tag + ".+" + md_tag);
+        std::sregex_iterator it(str.begin(), str.end(), reg);
+        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
+        {
+            auto text = it->str().substr(len_tag, it->str().length() - len_tag * 2);
+            auto html = "<" + html_tag + ">" + text + "</" + html_tag + ">";
+            str.replace(str.find(it->str()), it->str().length(), html);
+        }
     }
 #pragma endregion
 };
