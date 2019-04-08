@@ -15,11 +15,14 @@ class MDTransformer
     std::ifstream m_file_in;
     std::ofstream m_file_out;
 
+    bool m_in_code_block;
+
   public:
     MDTransformer(const std::string &file_in, const std::string &file_out)
     {
         this->m_file_in.open(file_in, std::ios::in);
         this->m_file_out.open(file_out, std::ios::out | std::ios::trunc);
+        this->m_in_code_block = false;
     }
     ~MDTransformer()
     {
@@ -65,6 +68,7 @@ class MDTransformer
                 this->_process_header(line);
                 this->_process_img_link(line);
                 this->_process_a_link(line);
+                this->_process_code(line);
                 this->m_file_out << line << std::endl;
             }
         }
@@ -110,6 +114,14 @@ class MDTransformer
             auto a_text = this->_substr(it->str(), '[', ']');
             auto a_tag = "<a href=\"" + a_href + "\">" + a_text + "</a>";
             str.replace(str.find(it->str()), it->str().length(), a_tag);
+        }
+    }
+    void _process_code(std::string &str)
+    {
+        if (str.compare("```") == 0)
+        {
+            str = this->m_in_code_block ? "</code></pre>" : "<pre><code>";
+            this->m_in_code_block = !this->m_in_code_block;
         }
     }
     void _add_html_footer()
