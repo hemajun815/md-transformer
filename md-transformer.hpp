@@ -4,6 +4,7 @@
 *******************************************************************************/
 #include <fstream>
 #include <string>
+#include <sstream>
 
 namespace hmj
 {
@@ -60,8 +61,28 @@ class MDTransformer
             std::getline(this->m_file_in, line);
             if (line.length() > 0)
             {
+                this->_process_header(line);
                 this->m_file_out << line << std::endl;
             }
+        }
+    }
+    void _process_header(std::string &str)
+    {
+        auto count = 0;
+        for (auto ch : str)
+        {
+            if (ch != '#')
+                break;
+            count++;
+        }
+        if (count != 0 && str.data()[count] == ' ')
+        {
+            std::stringstream ss;
+            ss << "<h" << count << ">"
+               << str.substr(count + 1)
+               << "</h" << count << ">";
+            str.clear();
+            ss >> str;
         }
     }
     void _add_html_footer()
