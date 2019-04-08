@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <regex>
 
 namespace hmj
 {
@@ -62,6 +63,7 @@ class MDTransformer
             if (line.length() > 0)
             {
                 this->_process_header(line);
+                this->_process_img_link(line);
                 this->m_file_out << line << std::endl;
             }
         }
@@ -85,11 +87,33 @@ class MDTransformer
             ss >> str;
         }
     }
+    void _process_img_link(std::string &str)
+    {
+        std::regex reg("!\\[.+\\]\\(.+\\)");
+        std::sregex_iterator it(str.begin(), str.end(), reg);
+        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
+        {
+            auto img_href = this->_substr(it->str(), '(', ')');
+            auto img_text = this->_substr(it->str(), '[', ']');
+            auto img_tag = "<img alt=\"" + img_text + "\" src=\"" + img_href + "\" />";
+            str.replace(str.find(it->str()), it->str().length(), img_tag);
+        }
+    }
     void _add_html_footer()
     {
         this->m_file_out << "</div>" << std::endl;
         this->m_file_out << "</body>" << std::endl;
         this->m_file_out << "</html>" << std::endl;
+    }
+#pragma endregion
+#pragma region : Utilities
+  private:
+    std::string _substr(const std::string &str, const char &start, const char &end)
+    {
+        auto pos_s = str.find_first_of(start);
+        auto pos_e = str.find_last_of(end);
+        auto len = pos_e - pos_s;
+        return str.substr(pos_s + 1, len - 1);
     }
 #pragma endregion
 };
