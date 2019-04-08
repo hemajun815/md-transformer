@@ -70,6 +70,7 @@ class MDTransformer
                 this->_process_a_link(line);
                 this->_process_code(line);
                 this->_process_inline_code(line);
+                this->_process_bold(line);
                 this->_process_paragraph(line);
                 this->m_file_out << line << std::endl;
             }
@@ -134,6 +135,17 @@ class MDTransformer
         {
             auto code = this->_substr(it->str(), '`', '`');
             auto html = "<code>" + code + "</code>";
+            str.replace(str.find(it->str()), it->str().length(), html);
+        }
+    }
+    void _process_bold(std::string &str)
+    {
+        std::regex reg("\\*{2}.+\\*{2}");
+        std::sregex_iterator it(str.begin(), str.end(), reg);
+        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
+        {
+            auto word = it->str().substr(2, it->str().length() - 4);
+            auto html = "<strong>" + word + "</strong>";
             str.replace(str.find(it->str()), it->str().length(), html);
         }
     }
