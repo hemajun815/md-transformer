@@ -30,7 +30,46 @@ class MDTransformer
     {
         if (!this->m_file_in.good() || !this->m_file_out.good())
             return "File error.";
+        this->_add_html_header();
+        this->_process_content();
+        this->_add_html_footer();
         return "Finished.";
     }
+
+#pragma region : Funtional
+  private:
+    void _add_html_header()
+    {
+        this->m_file_out << "<!DOCTYPE html>" << std::endl;
+        this->m_file_out << "<html lang=\"en\">" << std::endl;
+        this->m_file_out << "<head>" << std::endl;
+        this->m_file_out << "<meta charset=\"UTF-8\">" << std::endl;
+        this->m_file_out << "<meta name=\"viewport\" content =\"width=device-width, initial-scale=1.0\">" << std::endl;
+        this->m_file_out << "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">" << std::endl;
+        this->m_file_out << "<title>Markdown by md-transformer</title>" << std::endl;
+        this->m_file_out << "<link type=\"text/css\" rel=\"stylesheet\" href=\"./github-markdown.css\" />" << std::endl;
+        this->m_file_out << "</head>" << std::endl;
+        this->m_file_out << "<body>" << std::endl;
+        this->m_file_out << "<div class=\"markdown-body\">" << std::endl;
+    }
+    void _process_content()
+    {
+        std::string line = "";
+        while (!this->m_file_in.eof())
+        {
+            std::getline(this->m_file_in, line);
+            if (line.length() > 0)
+            {
+                this->m_file_out << line << std::endl;
+            }
+        }
+    }
+    void _add_html_footer()
+    {
+        this->m_file_out << "</div>" << std::endl;
+        this->m_file_out << "</body>" << std::endl;
+        this->m_file_out << "</html>" << std::endl;
+    }
+#pragma endregion
 };
 }; // namespace hmj
