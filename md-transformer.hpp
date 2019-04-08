@@ -69,6 +69,7 @@ class MDTransformer
                 this->_process_img_link(line);
                 this->_process_a_link(line);
                 this->_process_code(line);
+                this->_process_inline_code(line);
                 this->m_file_out << line << std::endl;
             }
         }
@@ -122,6 +123,17 @@ class MDTransformer
         {
             str = this->m_in_code_block ? "</code></pre>" : "<pre><code>";
             this->m_in_code_block = !this->m_in_code_block;
+        }
+    }
+    void _process_inline_code(std::string &str)
+    {
+        std::regex reg("`.+`");
+        std::sregex_iterator it(str.begin(), str.end(), reg);
+        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
+        {
+            auto code = this->_substr(it->str(), '`', '`');
+            auto html = "<code>" + code + "</code>";
+            str.replace(str.find(it->str()), it->str().length(), html);
         }
     }
     void _add_html_footer()
