@@ -64,6 +64,7 @@ class MDTransformer
             {
                 this->_process_header(line);
                 this->_process_img_link(line);
+                this->_process_a_link(line);
                 this->m_file_out << line << std::endl;
             }
         }
@@ -97,6 +98,18 @@ class MDTransformer
             auto img_text = this->_substr(it->str(), '[', ']');
             auto img_tag = "<img alt=\"" + img_text + "\" src=\"" + img_href + "\" />";
             str.replace(str.find(it->str()), it->str().length(), img_tag);
+        }
+    }
+    void _process_a_link(std::string &str)
+    {
+        std::regex reg("\\[.+\\]\\(.+\\)");
+        std::sregex_iterator it(str.begin(), str.end(), reg);
+        for (auto it = std::sregex_iterator(str.begin(), str.end(), reg); it != std::sregex_iterator(); it++)
+        {
+            auto a_href = this->_substr(it->str(), '(', ')');
+            auto a_text = this->_substr(it->str(), '[', ']');
+            auto a_tag = "<a href=\"" + a_href + "\">" + a_text + "</a>";
+            str.replace(str.find(it->str()), it->str().length(), a_tag);
         }
     }
     void _add_html_footer()
