@@ -70,6 +70,7 @@ class MDTransformer
                 this->_process_a_link(line);
                 this->_process_code(line);
                 this->_process_inline_code(line);
+                this->_process_paragraph(line);
                 this->m_file_out << line << std::endl;
             }
         }
@@ -135,6 +136,11 @@ class MDTransformer
             auto html = "<code>" + code + "</code>";
             str.replace(str.find(it->str()), it->str().length(), html);
         }
+    }
+    void _process_paragraph(std::string &str)
+    {
+        if (!this->m_in_code_block && *str.begin() != '<' && *str.end() != '>')
+            str = "<p>" + str + "</p>";
     }
     void _add_html_footer()
     {
