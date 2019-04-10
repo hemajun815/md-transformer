@@ -16,7 +16,6 @@ class MDTransformer
     std::ofstream m_file_out;
 
     bool m_in_code_block;
-    bool m_in_blockquote;
 
   public:
     MDTransformer(const std::string &file_in, const std::string &file_out)
@@ -24,7 +23,6 @@ class MDTransformer
         this->m_file_in.open(file_in, std::ios::in);
         this->m_file_out.open(file_out, std::ios::out | std::ios::trunc);
         this->m_in_code_block = false;
-        this->m_in_blockquote = false;
     }
     ~MDTransformer()
     {
@@ -153,15 +151,9 @@ class MDTransformer
     }
     void _process_blockquote(std::string &str)
     {
-        if (str.substr(0, 2) == "> " && !this->m_in_blockquote)
+        if (str.substr(0, 2) == "> ")
         {
-            this->m_in_blockquote = true;
-            str = "<blockquote>" + str.substr(2);
-        }
-        if (str.substr(0, 2) != "> " && this->m_in_blockquote)
-        {
-            this->m_in_blockquote = false;
-            str += "</blockquote>";
+            str = "<blockquote>" + str.substr(2) + "</blockquote>";
         }
     }
     void _process_paragraph(std::string &str)
