@@ -72,6 +72,7 @@ class MDTransformer
                 this->_process_inline_code(line);
                 this->_process_bold(line);
                 this->_process_italic(line);
+                this->_process_hr(line);
                 this->_process_paragraph(line);
                 this->m_file_out << line << std::endl;
             }
@@ -139,6 +140,13 @@ class MDTransformer
     void _process_italic(std::string &str)
     {
         this->_process_with_regex(str, "\\*", "em", 1);
+    }
+    void _process_hr(std::string &str)
+    {
+        if (str.compare("---") == 0)
+        {
+            str = "<hr></hr>";
+        }
     }
     void _process_paragraph(std::string &str)
     {
