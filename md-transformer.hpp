@@ -58,7 +58,7 @@ class MDTransformer
         this->m_file_out << "<meta name=\"viewport\" content =\"width=device-width, initial-scale=1.0\">" << std::endl;
         this->m_file_out << "<meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">" << std::endl;
         this->m_file_out << "<title>Markdown by md-transformer</title>" << std::endl;
-        this->m_file_out << "<link type=\"text/css\" rel=\"stylesheet\" href=\"./github-markdown.css\" />" << std::endl;
+        this->m_file_out << "<link type=\"text/css\" rel=\"stylesheet\" href=\"http://labfile.oss.aliyuncs.com/courses/569/github-markdown.css\" />" << std::endl;
         this->m_file_out << "</head>" << std::endl;
         this->m_file_out << "<body>" << std::endl;
         this->m_file_out << "<div class=\"markdown-body\">" << std::endl;
