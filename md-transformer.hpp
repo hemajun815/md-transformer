@@ -69,6 +69,7 @@ class MDTransformer
         while (!this->m_file_in.eof())
         {
             std::getline(this->m_file_in, line);
+            this->_process_blank_space(line);
             this->_process_header(line);
             this->_process_img_link(line);
             this->_process_a_link(line);
@@ -84,6 +85,11 @@ class MDTransformer
             if (line.length() > 0)
                 this->m_file_out << line << std::endl;
         }
+    }
+    void _process_blank_space(std::string &str)
+    {
+        if (!this->m_in_code_block)
+            this->_ltrim(str);
     }
     void _process_header(std::string &str)
     {
@@ -220,6 +226,11 @@ class MDTransformer
 #pragma endregion
 #pragma region : Utilities
   private:
+    void _ltrim(std::string &str)
+    {
+        auto pos = str.find_first_not_of(' ');
+        str.erase(str.begin(), str.begin() + pos);
+    }
     std::string _substr(const std::string &str, const char &start, const char &end)
     {
         auto pos_s = str.find_first_of(start);
