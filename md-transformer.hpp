@@ -16,6 +16,7 @@ class MDTransformer
     std::ofstream m_file_out;
 
     bool m_in_code_block;
+    bool m_in_blockquote;
 
   public:
     MDTransformer(const std::string &file_in, const std::string &file_out)
@@ -23,6 +24,7 @@ class MDTransformer
         this->m_file_in.open(file_in, std::ios::in);
         this->m_file_out.open(file_out, std::ios::out | std::ios::trunc);
         this->m_in_code_block = false;
+        this->m_in_blockquote = false;
     }
     ~MDTransformer()
     {
@@ -63,20 +65,18 @@ class MDTransformer
         while (!this->m_file_in.eof())
         {
             std::getline(this->m_file_in, line);
+            this->_process_header(line);
+            this->_process_img_link(line);
+            this->_process_a_link(line);
+            this->_process_code(line);
+            this->_process_inline_code(line);
+            this->_process_bold(line);
+            this->_process_italic(line);
+            this->_process_hr(line);
+            this->_process_blockquote(line);
+            this->_process_paragraph(line);
             if (line.length() > 0)
-            {
-                this->_process_header(line);
-                this->_process_img_link(line);
-                this->_process_a_link(line);
-                this->_process_code(line);
-                this->_process_inline_code(line);
-                this->_process_bold(line);
-                this->_process_italic(line);
-                this->_process_hr(line);
-                this->_process_blockquote(line);
-                this->_process_paragraph(line);
                 this->m_file_out << line << std::endl;
-            }
         }
     }
     void _process_header(std::string &str)
@@ -153,12 +153,22 @@ class MDTransformer
     {
         if (str.substr(0, 2) == "> ")
         {
-            str = "<blockquote>" + str.substr(2) + "</blockquote>";
+            str = "<p>" + str.substr(2) + "</p>";
+            if (!this->m_in_blockquote)
+            {
+                str = "<blockquote>" + str;
+                this->m_in_blockquote = !this->m_in_blockquote;
+            }
+        }
+        else if (str.length() == 0 && this->m_in_blockquote)
+        {
+            str = "</blockquote>";
+            this->m_in_blockquote = !this->m_in_blockquote;
         }
     }
     void _process_paragraph(std::string &str)
     {
-        if (!this->m_in_code_block && *str.begin() != '<' && *str.end() != '>')
+        if (str.length() > 0 && !this->m_in_code_block && *str.begin() != '<' && *str.end() != '>')
             str = "<p>" + str + "</p>";
     }
     void _add_html_footer()
