@@ -18,6 +18,7 @@ class MDTransformer
     bool m_in_code_block;
     bool m_in_blockquote;
     bool m_in_unordered_list;
+    bool m_in_ordered_list;
 
   public:
     MDTransformer(const std::string &file_in, const std::string &file_out)
@@ -27,6 +28,7 @@ class MDTransformer
         this->m_in_code_block = false;
         this->m_in_blockquote = false;
         this->m_in_unordered_list = false;
+        this->m_in_ordered_list = false;
     }
     ~MDTransformer()
     {
@@ -76,6 +78,7 @@ class MDTransformer
             this->_process_italic(line);
             this->_process_hr(line);
             this->_process_unordered_list(line);
+            this->_process_ordered_list(line);
             this->_process_blockquote(line);
             this->_process_paragraph(line);
             if (line.length() > 0)
@@ -167,6 +170,23 @@ class MDTransformer
         {
             str = "</ul>";
             this->m_in_unordered_list = !this->m_in_unordered_list;
+        }
+    }
+    void _process_ordered_list(std::string &str)
+    {
+        if (std::regex_match(str, std::regex("\\d+\\. .*")))
+        {
+            str = "<li>" + str.substr(3) + "</li>";
+            if (!this->m_in_ordered_list)
+            {
+                str = "<ol>" + str;
+                this->m_in_ordered_list = !this->m_in_ordered_list;
+            }
+        }
+        else if (str.length() == 0 && this->m_in_ordered_list)
+        {
+            str = "</ol>";
+            this->m_in_ordered_list = !this->m_in_ordered_list;
         }
     }
     void _process_blockquote(std::string &str)
